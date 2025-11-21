@@ -6,10 +6,49 @@ A comprehensive PyTorch-based implementation of Physics-Informed Neural Networks
 
 This repository provides a modular and flexible framework for training PINNs to solve various PDEs. The implementation includes:
 
-- **Laplace Equation**: \(\nabla^2 u = 0\)
-- **Poisson Equation**: \(\nabla^2 u = f(x, y)\)
+- **Laplace Equation**: ∇²u = 0
+- **Poisson Equation**: ∇²u = f(x, y)
 
 The framework supports both forward problems (solving PDEs with known parameters) and inverse problems (parameter identification).
+
+## ⚠️ Current Status & Development Roadmap
+
+### Phase 1: Initial Implementation (Current) ✅
+
+**Completed:**
+- ✅ Basic PINN architecture implementation
+- ✅ Laplace equation solver (working correctly)
+- ✅ Comprehensive visualization system
+- ✅ CSV-based configuration
+- ✅ GPU acceleration support
+
+**Known Issues:**
+- ⚠️ **Poisson Equation**: Currently not converging properly
+  - The model shows high error and poor convergence
+  - Under active investigation and research
+  
+### Phase 2: Advanced Optimization (In Progress) 🔄
+
+**Next Steps:**
+- 🔬 **Investigate Poisson equation convergence issues**
+  - Analyze loss landscape and gradient flow
+  - Test alternative activation functions
+  - Experiment with different network architectures
+  
+- 🔧 **Potential Improvements Under Consideration:**
+  - **L-BFGS Optimizer**: Second-order optimization for better convergence
+  - **Adaptive Activation Functions**: Self-tuning activation strategies
+  - **Multi-scale Training**: Progressive refinement approach
+  - **Loss Balancing**: Dynamic weighting schemes
+  - **Curriculum Learning**: Gradual increase in problem complexity
+
+### Phase 3: Advanced Models (Planned) 📅
+
+**Future Work:**
+- Ψ-NN architecture implementation
+- PINN-Post processing methods
+- Ablation studies and model comparisons
+- Extended PDE support (Navier-Stokes, Heat equation, etc.)
 
 ## 🚀 Features
 
@@ -122,24 +161,56 @@ Configuration files are stored in `Config/` directory with the naming convention
 
 ### Laplace Equation
 
-**PDE**: \(\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = 0\)
+**PDE**: 
 
-**Boundary Conditions**: \(u(x, y) = x^3 - 3xy^2\) on all boundaries
+```
+∂²u/∂x² + ∂²u/∂y² = 0
+```
 
-**Domain**: \([-1, 1] \times [-1, 1]\)
+**Boundary Conditions**: 
+
+```
+u(x, y) = x³ - 3xy²  on all boundaries
+```
+
+**Domain**: [-1, 1] × [-1, 1]
+
+**Analytical Solution**:
+```
+u(x, y) = x³ - 3xy²
+```
+
+**Status**: ✅ Working correctly with excellent convergence
 
 ### Poisson Equation
 
-**PDE**: \(\nabla^2 u = f(x, y)\)
+**PDE**: 
 
-where \(f(x, y) = \sum_{k=1}^{4} \frac{1}{2}(-1)^{k+1} k^2 \sin(k\pi x)\sin(k\pi y)\)
+```
+∇²u = f(x, y)
+```
 
-**Boundary Conditions**: \(u = 0\) on all boundaries
+where the source term is:
+
+```
+f(x, y) = Σ(k=1 to 4) [1/2 · (-1)^(k+1) · k² · sin(kπx) · sin(kπy)]
+```
+
+**Boundary Conditions**: 
+
+```
+u = 0  on all boundaries
+```
+
+**Domain**: [-1, 1] × [-1, 1]
 
 **Analytical Solution**:
-\[
-u(x, y) = \frac{1}{4\pi^2} \sum_{k=1}^{4} \frac{(-1)^{k+1}}{k} \sin(k\pi x)\sin(k\pi y)
-\]
+
+```
+u(x, y) = 1/(4π²) · Σ(k=1 to 4) [(-1)^(k+1)/k · sin(kπx) · sin(kπy)]
+```
+
+**Status**: ⚠️ Under investigation - convergence issues detected
 
 ## 📊 Results and Plots
 
@@ -154,60 +225,77 @@ Results/
     │   ├── Laplace_EXP_loss_PINN.csv
     │   └── *.png (loss curves)
     ├── Figure/              # Visualization outputs
-    │   ├── *_comprehensive_*.png  (4-panel detailed analysis)
+    │   ├── *_comprehensive_*.png  (8-panel detailed analysis)
     │   ├── *_simple_*.png         (2x2 comparison)
     │   └── *_figure_*.png         (solution plots)
+    ├── Parameters/          # Inverse problem results
+    │   └── *_paras_PINN.csv
     └── Clock time.csv       # Training time statistics
 ```
 
 ### Visualization Types
 
-1. **Comprehensive Results** (`*_comprehensive_*.png`):
-   - MSE propagation curve
-   - Ground truth solution
-   - PINN prediction
-   - Absolute error heatmap
-   - Error distribution histogram
-   - Relative error analysis
-   - Statistical metrics
+#### 1. Comprehensive Results (*_comprehensive_*.png)
 
-2. **Simple Comparison** (`*_simple_*.png`):
-   - Loss curve
-   - Ground truth
-   - Prediction
-   - Error map
+Eight-panel visualization including:
+- **Panel 1**: MSE propagation curve (training loss over iterations)
+- **Panel 2**: Ground truth solution
+- **Panel 3**: PINN prediction
+- **Panel 4**: Absolute error heatmap
+- **Panel 5**: Loss components (physics, boundary, data)
+- **Panel 6**: Error distribution histogram
+- **Panel 7**: Relative error heatmap
+- **Panel 8**: Statistical error metrics
 
-3. **Loss Components**:
-   - Total loss
-   - Physics residual loss (`loss_f`)
-   - Boundary condition loss (`loss_b`)
-   - Data loss (`loss_d`) for inverse problems
+#### 2. Simple Comparison (*_simple_*.png)
+
+Four-panel comparison:
+- Loss curve
+- Ground truth
+- PINN prediction
+- Absolute error map
+
+#### 3. Loss Components
+
+Individual plots for each loss term:
+- **Total loss**: Overall training objective
+- **Physics residual loss (loss_f)**: PDE satisfaction at collocation points
+- **Boundary condition loss (loss_b)**: BC violation at domain boundaries
+- **Data loss (loss_d)**: Supervised error (inverse problems only)
+- **Regularization loss (loss_rgl)**: L2 weight penalty
 
 ## 🧪 Advanced Features
 
 ### Inverse Problems
 
-For parameter identification, set `para_ctrl_add` in the configuration:
+For parameter identification, configure in CSV file:
 
 ```csv
 para_ctrl_add,1
-para_ctrl,"1.0"  # Initial guess
+para_ctrl,"1.0"  # Initial guess for unknown parameter
 ```
 
-The framework will automatically:
+The framework will:
 - Add parameters as trainable variables
-- Track parameter evolution
-- Generate parameter convergence plots
+- Track parameter evolution during training
+- Generate parameter convergence plots in `Results/Parameters/`
 
 ### Custom PDEs
 
 To implement a new PDE:
 
-1. Add configuration file in `Config/`
-2. Implement PDE residual in `Training.py`:
-   - Update `net_f()` for physics loss
-   - Update `net_b()` for boundary conditions
-   - Add analytical solution in `compute_ground_truth()`
+1. **Create configuration file** in `Config/` (e.g., `NewPDE_EXP.csv`)
+
+2. **Implement PDE residual** in `Training.py`:
+   - Update `net_f()` method for physics loss
+   - Update `net_b()` method for boundary conditions
+   - Add analytical solution in `compute_ground_truth()` method
+
+3. **Run training**:
+   ```python
+   task = Training.model('NewPDE', 'EXP')
+   task.train()
+   ```
 
 ### Multi-Model Comparison
 
@@ -222,40 +310,193 @@ vis.loss_read('PINN_post')
 vis.loss_vis()
 ```
 
+This generates comparison plots for multiple training runs.
+
 ## 📈 Training Details
 
 ### Loss Function Components
 
 **Total Loss**:
-\[
-\mathcal{L} = \mathcal{L}_f + \mathcal{L}_b + \mathcal{L}_d + \mathcal{L}_{reg}
-\]
 
-- **Physics Loss** (\(\mathcal{L}_f\)): PDE residual at collocation points
-- **Boundary Loss** (\(\mathcal{L}_b\)): Boundary condition violation
-- **Data Loss** (\(\mathcal{L}_d\)): Supervised loss (inverse problems only)
-- **Regularization** (\(\mathcal{L}_{reg}\)): L2 weight penalty
+```
+L_total = L_physics + L_boundary + L_data + L_regularization
+```
+
+Where:
+- **L_physics**: PDE residual at collocation points
+  ```
+  L_physics = mean[(∇²u - f)²]
+  ```
+
+- **L_boundary**: Boundary condition violation
+  ```
+  L_boundary = mean[(u_predicted - u_boundary)²]
+  ```
+
+- **L_data**: Supervised loss for inverse problems
+  ```
+  L_data = mean[(u_predicted - u_measured)²]
+  ```
+
+- **L_regularization**: L2 weight penalty
+  ```
+  L_reg = λ · Σ||W||²
+  ```
 
 ### Optimization Strategy
 
-- **Optimizer**: Adam
-- **Scheduler**: 
-  - Laplace: ReduceLROnPlateau (adaptive)
-  - Poisson: MultiStepLR (scheduled decay)
-- **Gradient Clipping**: Applied to Laplace for stability
-- **Batch Sampling**: Random sampling each iteration (configurable)
+| Component | Laplace | Poisson |
+|-----------|---------|---------|
+| **Optimizer** | Adam | Adam |
+| **Initial LR** | 1e-4 | 1e-3 |
+| **Scheduler** | ReduceLROnPlateau | MultiStepLR |
+| **Gradient Clipping** | Yes (max_norm=1.0) | No |
+| **Batch Sampling** | Random (2000 points) | Full domain |
+| **Loss Weighting** | Static | Adaptive (progressive) |
+
+### Adaptive Loss Weighting (Poisson Only)
+
+For Poisson equation, the framework uses progressive loss weighting:
+
+```python
+pde_weight = 1.0 + min(9.0, iteration / (total_steps * 0.1))
+boundary_weight = max(1.0, 10.0 - iteration / (total_steps * 0.05))
+```
+
+This prioritizes boundary conditions early, then shifts focus to PDE satisfaction.
 
 ## 🔬 Experimental Notes
 
 ### Laplace Equation
-- Uses lower learning rate (1e-4) for smooth convergence
-- Adaptive scheduler responds to loss plateaus
-- Gradient clipping prevents instability
+- **Learning Rate**: Lower (1e-4) for smooth, stable convergence
+- **Scheduler**: Adaptive (ReduceLROnPlateau) responds to loss plateaus
+- **Gradient Clipping**: Prevents gradient explosion in smooth regions
+- **Training Strategy**: Emphasizes smoothness and boundary accuracy
+- **Results**: Excellent convergence with low error across the domain
 
-### Poisson Equation
-- Higher learning rate (1e-3) for faster convergence
-- Adaptive loss weighting: progressively increase PDE weight
-- No gradient clipping to preserve gradient information
+### Poisson Equation (Current Issues)
+- **Learning Rate**: Higher (1e-3) for faster convergence
+- **Scheduler**: Scheduled decay (MultiStepLR) at milestones
+- **Adaptive Weighting**: Progressive shift from BC to PDE
+- **No Gradient Clipping**: Preserves full gradient information for source term
+- **Training Strategy**: Balances source term fitting with boundary conditions
+- **Known Issues**: 
+  - Poor convergence observed
+  - High training error persists
+  - Requires further investigation
+
+### Suggested Improvements for Poisson Equation
+
+Based on PINN literature and best practices:
+
+1. **L-BFGS Optimizer**:
+   - Second-order optimization method
+   - Better for smooth problems with source terms
+   - Requires full-batch training
+
+2. **Network Architecture**:
+   - Deeper networks (4-5 hidden layers)
+   - Wider layers (32-64 neurons)
+   - Alternative activations (Swish, GELU)
+
+3. **Training Strategy**:
+   - Two-stage training (Adam → L-BFGS)
+   - Curriculum learning (simple → complex)
+   - Higher resolution collocation points
+
+4. **Loss Balancing**:
+   - Separate learning rates for boundary and PDE terms
+   - Normalized gradients for each loss component
+   - Attention-based weighting
+
+## 🎓 Architecture Details
+
+### Neural Network Structure
+
+The PINN architecture uses a fully-connected feedforward network:
+
+```python
+Input Layer (2D coordinates: x, y)
+    ↓
+Hidden Layer 1 (node_num neurons) + Tanh activation
+    ↓
+Hidden Layer 2 (node_num neurons) + Tanh activation
+    ↓
+Hidden Layer 3 (2 × node_num neurons) + Tanh activation
+    ↓
+Output Layer (1 output: u)
+```
+
+Default configuration:
+- **Input**: 2 (x, y coordinates)
+- **Hidden layers**: [8, 8, 16] neurons
+- **Output**: 1 (solution u)
+- **Activation**: Tanh (smooth, differentiable)
+
+### Collocation Points
+
+Training points are sampled on a uniform grid:
+- **Grid resolution**: 101 × 101 = 10,201 points (default)
+- **Batch size**: 2000 points per iteration (Laplace)
+- **Full batch**: All points used (Poisson)
+- **Boundary points**: 1000 points per boundary edge
+
+## 📊 Performance Metrics
+
+The framework computes and visualizes:
+
+1. **Mean Squared Error (MSE)**:
+   ```
+   MSE = mean[(u_predicted - u_true)²]
+   ```
+
+2. **Maximum Absolute Error**:
+   ```
+   Max Error = max|u_predicted - u_true|
+   ```
+
+3. **Mean Absolute Error**:
+   ```
+   MAE = mean|u_predicted - u_true|
+   ```
+
+4. **Relative Error**:
+   ```
+   Relative Error = |u_predicted - u_true| / (|u_true| + ε)
+   ```
+
+5. **Standard Deviation of Error**:
+   ```
+   Std Error = std(|u_predicted - u_true|)
+   ```
+
+All metrics are computed on a high-resolution grid (200 × 200 points by default) and displayed in the comprehensive visualization.
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**1. CUDA Out of Memory**
+- Reduce `batch_size` in configuration
+- Reduce `grid_node_num` for training
+- Use CPU: Set `device = torch.device('cpu')` in `Training.py`
+
+**2. Training Instability**
+- Lower learning rate
+- Enable regularization: Set `regularization_state = 1`
+- Increase gradient clipping threshold
+
+**3. Poor Convergence (Especially Poisson)**
+- Increase `train_steps` (try 200k-500k iterations)
+- Adjust learning rate schedule milestones
+- Consider switching to L-BFGS optimizer
+- Try deeper/wider networks
+- Increase collocation points
+
+**4. High Error at Boundaries**
+- Increase `bun_node_num`
+- Adjust boundary loss weight in `net_b()`
+- Verify boundary condition formulation
 
 ## 📝 Citation
 
@@ -270,12 +511,40 @@ If you use this code in your research, please cite:
 }
 ```
 
+## 📚 References
+
+This implementation is based on the following works:
+
+1. **Ψ-NN Framework**: Liu, Z., et al. (2025). "Ψ-NN: A physics-informed neural network framework." *Nature Communications*. [https://www.nature.com/articles/s41467-025-64624-3](https://www.nature.com/articles/s41467-025-64624-3)
+
+2. **Original Ψ-NN Repository**: [https://github.com/ZitiLiu/Psi-NN](https://github.com/ZitiLiu/Psi-NN/tree/main)
+
+3. Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2019). "Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations." *Journal of Computational Physics*, 378, 686-707.
+
+4. Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2017). "Physics Informed Deep Learning (Part I): Data-driven Solutions of Nonlinear Partial Differential Equations." *arXiv preprint arXiv:1711.10561*.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to:
-- Report bugs
+- Report bugs via GitHub Issues
 - Suggest new features
 - Submit pull requests
+- Improve documentation
+- Help investigate Poisson equation convergence issues
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Priority Areas for Contribution
+
+- 🔴 **High Priority**: Poisson equation convergence improvement
+- 🟡 **Medium Priority**: L-BFGS optimizer implementation
+- 🟢 **Low Priority**: Additional PDE examples
 
 ## 📄 License
 
@@ -283,14 +552,26 @@ This project is available for academic and research purposes.
 
 ## 🙏 Acknowledgments
 
-This implementation is based on the pioneering work on Physics-Informed Neural Networks:
-
-- Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2019). Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations. *Journal of Computational Physics*, 378, 686-707.
+- PyTorch team for the automatic differentiation framework
+- Physics-Informed Machine Learning community
+- Ψ-NN framework authors
+- Contributors and users of this repository
 
 ## 📧 Contact
 
-For questions or collaborations, please open an issue on GitHub.
+For questions, collaborations, or bug reports:
+- Open an issue on GitHub
+- Repository: https://github.com/Faraz-Ardeh-2004/Last-edition-PINN-1st
 
 ---
 
-**Note**: This framework is designed for research and educational purposes. For production use, additional validation and optimization may be required.
+**Note**: This framework is currently in Phase 1 development. The Laplace equation solver is production-ready, while the Poisson equation solver requires further research and optimization. Contributions and suggestions are highly welcome!
+
+## 🔄 Version History
+
+- **v1.0** (2024): Initial release - Phase 1
+  - ✅ Laplace equation solver (working)
+  - ⚠️ Poisson equation solver (under development)
+  - ✅ Comprehensive visualization system
+  - ✅ CSV-based configuration
+  - ✅ GPU acceleration support
