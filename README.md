@@ -23,32 +23,57 @@ The framework supports both forward problems (solving PDEs with known parameters
 - ✅ GPU acceleration support
 
 **Known Issues:**
-- ⚠️ **Poisson Equation**: Currently not converging properly
-  - The model shows high error and poor convergence
-  - Under active investigation and research
-  
-### Phase 2: Advanced Optimization (In Progress) 🔄
+### Phase 2: Advanced Optimization & Paper Implementation (Current Target) 🎯
 
-**Next Steps:**
+**Primary Objectives:**
+1. **Fix Poisson Equation Convergence** 
+2. **Complete Full Paper Implementation**
+   - Implement all methodologies from the Ψ-NN paper
+   - Replicate experimental results
+   - Validate against paper benchmarks
+
+**Active Research Tasks:**
 - 🔬 **Investigate Poisson equation convergence issues**
-  - Analyze loss landscape and gradient flow
-  - Test alternative activation functions
-  - Experiment with different network architectures
+  - Analyze loss landscape and gradient flow patterns
+  - Profile gradient magnitudes across training
+  - Test alternative activation functions (Swish, GELU, adaptive)
+  - Experiment with different network architectures (deeper, wider, residual)
+  - Study collocation point distribution effects
   
-- 🔧 **Potential Improvements Under Consideration:**
+- 🔧 **Optimization Methods to Implement:**
   - **L-BFGS Optimizer**: Second-order optimization for better convergence
+    - Two-stage training: Adam (warm-up) → L-BFGS (fine-tuning)
+    - Full-batch requirement and memory management
   - **Adaptive Activation Functions**: Self-tuning activation strategies
+    - Learnable activation parameters
+    - Dynamic activation selection
   - **Multi-scale Training**: Progressive refinement approach
+    - Coarse-to-fine grid refinement
+    - Hierarchical collocation strategy
   - **Loss Balancing**: Dynamic weighting schemes
+    - Gradient-based balancing
+    - Adaptive loss coefficients
   - **Curriculum Learning**: Gradual increase in problem complexity
+    - Progressive source term complexity
+    - Staged boundary condition enforcement
 
-### Phase 3: Advanced Models (Planned) 📅
+### Phase 3: Advanced Models Implementation (Planned) 📅
 
-**Future Work:**
-- Ψ-NN architecture implementation
-- PINN-Post processing methods
-- Ablation studies and model comparisons
-- Extended PDE support (Navier-Stokes, Heat equation, etc.)
+**Target: Complete Ψ-NN Framework**
+
+**Models to Implement:**
+- **PINN-Post**: Post-processing enhancement methods
+  - Solution refinement techniques
+  - Error correction mechanisms
+  - Multi-fidelity approaches
+  
+- **Ψ-NN Architecture**: Full framework from paper
+  - Core Ψ-NN methodology
+  - Novel loss formulations
+  - Advanced training strategies
+  
+- **Ablation Studies**: Systematic
+
 
 ## 🚀 Features
 
